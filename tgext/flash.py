@@ -2,10 +2,6 @@
 '''
 You can override templates and variable defaults in the Flash class
 if you need customization
-
-TODO:
-- Customization per config
-- JS stuff
 '''
 
 import json
