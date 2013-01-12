@@ -101,7 +101,10 @@ class Flash(TGFlash):
         r = []
         for i, p in enumerate(payload):
             p['i'] = i
-            p['message'] = html_escape(p.get('message', ''))
+            if 'no_escape' in p:
+                p['message'] = p.get('message', '')
+            else:
+                p['message'] = html_escape(p.get('message', ''))
             vars = copy_and_call(self.message_vars, p)
             vars.update(p)
             r.append(self.message_template % vars)
