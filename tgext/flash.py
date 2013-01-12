@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+'''
+You can override templates and variable defaults in the Flash class
+if you need customization
+
+TODO:
+- Customization per config
+- JS stuff
+'''
+
 import json
 
 from tg import response, request
@@ -23,6 +33,10 @@ class Flash(TGFlash):
 
     # Displaying the flash message via JS is not implemented ATM
     use_js = False
+
+    # For future- and backwards-compatibility
+    get_response = lambda: response
+    get_request = lambda: request
 
     container_template = """
 <div id="%(container_id)s" class="%(container_class)s">
@@ -50,18 +64,15 @@ class Flash(TGFlash):
         )
 
     def __call__(self, message, status=None,
-        response=None, request=None,
         overwrite=False,
         **extra_payload):
 
-        response = response or self.get_response()
         if response is None:
             raise ValueError("Must provide a response object or "
                 "configure a callable that provides one")
 
         payload = []
 
-        request = request or self.get_request()
         if not overwrite and request:
             try:
                 # Get payload, if already set before
@@ -92,7 +103,7 @@ class Flash(TGFlash):
         log.debug("Setting payload in cookie")
         response.set_cookie(self.cookie_name, payload)
 
-    def render(self, container_id, use_js=False, request=None, response=None, *args, **kwargs):
+    def render(self, container_id, use_js=False, *args, **kwargs):
         payload = self.pop_payload(request, response)
         if not payload:
             return ''
@@ -115,7 +126,4 @@ class Flash(TGFlash):
             'content': '\n'.join(r)}
 
 
-flash = Flash(
-    get_response=lambda: response,
-    get_request=lambda: request
-    )
+flash = Flash()
