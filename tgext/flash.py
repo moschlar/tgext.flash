@@ -55,25 +55,23 @@ class Flash(TGFlash):
 
         response = response or self.get_response()
         if response is None:
-            raise ValueError(
-                "Must provide a response object or configure a callable that "
-                "provides one"
-                )
+            raise ValueError("Must provide a response object or "
+                "configure a callable that provides one")
 
         payload = []
 
         request = request or self.get_request()
         if not overwrite and request:
             try:
+                # Get payload, if already set before
                 payload = request.environ['webflash.payload']
-                log.debug(payload)
                 payload = json.loads(unquote(payload))
-                log.debug(payload)
                 log.debug("Got payload from environ %d", id(request.environ))
                 if isinstance(payload, dict):
                     log.debug('Upgrading old-style payload...')
                     payload = [payload]
             except:
+                # No previous payload set before
                 pass
 
         payload.append(
