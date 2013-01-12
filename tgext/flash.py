@@ -1,11 +1,12 @@
 import json
-from urllib import quote, unquote
-from logging import getLogger
-from tg.flash import TGFlash
-from webflash import html_escape
-from tg import response, request
 
-log = getLogger(__name__)
+from tg import response, request
+from tg.flash import TGFlash
+
+from urllib import quote, unquote
+from markupsafe import escape_silent as html_escape
+
+log = __import__('logging').getLogger(__name__)
 
 
 def copy_and_call(d, *args, **kw):

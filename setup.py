@@ -31,6 +31,7 @@ setup(name='tgext.flash',
       zip_safe=True,
       install_requires=[
           'TurboGears2 >= 2.2.0',
+          'MarkupSafe'
       ],
 #      entry_points="""
 #      # -*- Entry points: -*-
