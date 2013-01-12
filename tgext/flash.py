@@ -88,7 +88,8 @@ class Flash(TGFlash):
 
         payload.append(
             dict(
-                message=message,
+                # Force the message to be unicode so lazystrings, etc... are coerced
+                message=unicode(message),
                 status=status or self.default_status,
                 **extra_payload
             ))
@@ -102,6 +103,9 @@ class Flash(TGFlash):
             log.debug("Setting payload in environ %d", id(request.environ))
         log.debug("Setting payload in cookie")
         response.set_cookie(self.cookie_name, payload)
+
+        if len(response.headers['Set-Cookie']) > 4096:
+            raise ValueError('Flash value is too long (cookie would be >4k)')
 
     def render(self, container_id, use_js=False, *args, **kwargs):
         payload = self.pop_payload(request, response)
