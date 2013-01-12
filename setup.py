@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(name='tgext.flash',
       version='0.1',
-      description="Flash Extension for TG2",
+      description="Advanced Flash Extension for TG2",
       long_description=open('README.md').read(),
       author='Moritz Schlarb',
       author_email='moschlar@metalabs.de',
