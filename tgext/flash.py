@@ -107,7 +107,7 @@ class Flash(TGFlash):
         if len(response.headers['Set-Cookie']) > 4096:
             raise ValueError('Flash value is too long (cookie would be >4k)')
 
-    def render(self, container_id, use_js=False, *args, **kwargs):
+    def render(self, container_id, use_js=False, container_class='', *args, **kwargs):
         payload = self.pop_payload(request, response)
         if not payload:
             return ''
@@ -126,7 +126,7 @@ class Flash(TGFlash):
             r.append(self.message_template % vars)
         return self.container_template % {
             'container_id': container_id,
-            'container_class': '',
+            'container_class': container_class,
             'content': '\n'.join(r)}
 
 
