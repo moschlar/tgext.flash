@@ -13,8 +13,13 @@ import json
 from tg import response, request
 from tg.flash import TGFlash
 
-from urllib import quote, unquote
 from markupsafe import escape_silent as html_escape
+try:
+    from tg._compat import unicode_text, url_quote, url_unquote
+except ImportError:
+    # TG < 2.3
+    from urllib import quote as url_quote, unquote as url_unqoute
+    unicode_text = unicode
 
 log = __import__('logging').getLogger(__name__)
 
@@ -77,7 +82,7 @@ class Flash(TGFlash):
             try:
                 # Get payload, if already set before
                 payload = request.environ['webflash.payload']
-                payload = json.loads(unquote(payload))
+                payload = json.loads(url_unquote(payload))
                 log.debug("Got payload from environ %d", id(request.environ))
                 if isinstance(payload, dict):
                     log.debug('Upgrading old-style payload...')
@@ -89,12 +94,12 @@ class Flash(TGFlash):
         payload.append(
             dict(
                 # Force the message to be unicode so lazystrings, etc... are coerced
-                message=unicode(message),
+                message=unicode_text(message),
                 status=status or self.default_status,
                 **extra_payload
             ))
 
-        payload = quote(json.dumps(payload))
+        payload = url_quote(json.dumps(payload))
 
         if request:
             # Save the payload in environ too in case JavaScript is not being
@@ -107,7 +112,7 @@ class Flash(TGFlash):
         if len(response.headers['Set-Cookie']) > 4096:
             raise ValueError('Flash value is too long (cookie would be >4k)')
 
-    def render(self, container_id, use_js=False, container_class='', *args, **kwargs):
+    def render(self, container_id='flash', use_js=False, container_class='', *args, **kwargs):
         payload = self.pop_payload(request, response)
         if not payload:
             return ''
@@ -124,6 +129,7 @@ class Flash(TGFlash):
             vars = copy_and_call(self.message_vars, p)
             vars.update(p)
             r.append(self.message_template % vars)
+
         return self.container_template % {
             'container_id': container_id,
             'container_class': container_class,
