@@ -14,6 +14,7 @@ class Flash(TGFlash):
 
     def __call__(self, message, status=None,
         response=None, request=None,
+        overwrite=False,
         **extra_payload):
 
         response = response or self.get_response()
@@ -25,23 +26,19 @@ class Flash(TGFlash):
 
         payload = []
 
-#        log.debug("Getting payload from cookie")
-#        payload = response.get_cookie(self.cookie_name)
-
         request = request or self.get_request()
-        if request:
+        if not overwrite and request:
             try:
                 payload = request.environ['webflash.payload']
                 log.debug(payload)
                 payload = json.loads(unquote(payload))
                 log.debug(payload)
                 log.debug("Got payload from environ %d", id(request.environ))
+                if isinstance(payload, dict):
+                    log.debug('Upgrading old-style payload...')
+                    payload = [payload]
             except:
                 pass
-
-        if isinstance(payload, dict):
-            log.debug('Upgrading old-style payload...')
-            payload = [payload]
 
         payload.append(
             dict(
@@ -52,8 +49,7 @@ class Flash(TGFlash):
 
         payload = quote(json.dumps(payload))
 
-#        request = request or self.get_request()
-        if request is not None:
+        if request:
             # Save the payload in environ too in case JavaScript is not being
             # used and the message is being displayed in the same request.
             request.environ['webflash.payload'] = payload
@@ -71,7 +67,6 @@ class Flash(TGFlash):
             p['message'] = html_escape(p.get('message', ''))
             p['container_id'] = container_id
         return '\n'.join(self.static_template % p for p in payload)
-
 
 
 flash = Flash(
